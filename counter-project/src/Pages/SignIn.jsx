@@ -2,6 +2,7 @@ import axios from "axios";
 import React, { useState } from "react";
 import { Button, FloatingLabel, Form } from "react-bootstrap";
 import { useNavigate } from "react-router-dom";
+import { errorToaster, successToaster } from "../services/toastify.service";
 
 const SignIn = () => {
   const [email, setEmail] = useState("");
@@ -19,12 +20,19 @@ const SignIn = () => {
     console.log(data); //{email: 'kalu@gmail.com', password: 'djhkfjd'}
     // login api hit to post
     const SERVER_URL = import.meta.env.VITE_SERVER_URL;
-    const response = await axios.post(`${SERVER_URL}/users/login`, data);
+    try {
+      const response = await axios.post(`${SERVER_URL}/users/login`, data);
 
-    console.log(response);
+      console.log(response);
 
-    if (response.data.status) {
-      navigate("/");
+      if (response.data.status) {
+        successToaster(response.data.message);
+        sessionStorage.setItem("isLoggedIn", true);
+        navigate("/home");
+      }
+    } catch ({ response }) {
+      // console.log(response.data.message);
+      errorToaster(response.data.message);
     }
   };
   return (

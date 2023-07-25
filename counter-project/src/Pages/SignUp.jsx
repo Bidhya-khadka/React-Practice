@@ -2,6 +2,11 @@ import React, { useState } from "react";
 import { Button, FloatingLabel, Form } from "react-bootstrap";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
+import {
+  errorToaster,
+  successToaster,
+  warningToaster,
+} from "../services/toastify.service";
 
 const SignUp = () => {
   const [fullName, setFullName] = useState("");
@@ -11,7 +16,7 @@ const SignUp = () => {
   // redirect sign in page
   const navigate = useNavigate();
   const redirectSignIn = () => {
-    navigate("/signin");
+    navigate("/");
   };
 
   // on button  submit
@@ -22,11 +27,16 @@ const SignUp = () => {
 
     // // api hit for registration
     const SERVER_URL = import.meta.env.VITE_SERVER_URL;
-    const response = await axios.post(`${SERVER_URL}/users/register`, data);
-    console.log(response.data);
+    try {
+      const response = await axios.post(`${SERVER_URL}/users/register`, data);
+      if (response.data.status) {
+        successToaster(response.data.message);
+        navigate("/");
+      }
+    } catch (error) {
+      console.log(response.data.message);
 
-    if (response.data.status) {
-      navigate("/signin");
+      errorToaster(error.response.data.message);
     }
   };
 
